@@ -191,7 +191,7 @@
                                                 </div>
                                                 <div class="d-flex justify-content-between align-items-center pt-2 border-top border-white-50">
                                                     <span class="small text-white-50"><i class="fa-regular fa-file-lines me-1"></i> Active Course</span>
-                                                    <a href='<%# "DownloadMaterials.aspx?subject=" + Server.UrlEncode(Eval("SubjectName").ToString()) %>' class="text-white fw-bold text-decoration-none small">View Materials &rarr;</a>
+                                                    <a href='<%# "DownloadMaterials.aspx?subject=" + Server.UrlEncode((Eval("SubjectName") ?? "").ToString()) %>' class="text-white fw-bold text-decoration-none small">View Materials &rarr;</a>
                                                 </div>
                                             </div>
                                         </div>

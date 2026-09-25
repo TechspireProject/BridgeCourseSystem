@@ -250,3 +250,66 @@ GO
 UPDATE LearningMaterials
 SET ContentUrl = REPLACE(ContentUrl, '~/', '/')
 WHERE ContentUrl LIKE '~/%';
+
+
+
+
+
+
+
+
+
+USE BridgePrepNewDB;
+GO
+
+-- 1. Create or ensure Scores table exists
+IF OBJECT_ID('dbo.Scores', 'U') IS NULL
+BEGIN
+    CREATE TABLE [dbo].[Scores] (
+        [ScoreId]    INT IDENTITY (1, 1) NOT NULL PRIMARY KEY,
+        [StudentId]  INT NOT NULL REFERENCES [dbo].[Users]([UserId]),
+        [QuizId]     INT NOT NULL REFERENCES [dbo].[Quizzes]([QuizId]) ON DELETE CASCADE,
+        [Score]      INT NOT NULL,
+        [TotalMarks] INT NOT NULL,
+        [TakenAt]    DATETIME DEFAULT (GETDATE()) NULL
+    );
+END
+GO
+
+-- 2. Create StudentResults View for performance tracking
+IF OBJECT_ID('dbo.StudentResults', 'V') IS NOT NULL
+    DROP VIEW dbo.StudentResults;
+GO
+
+CREATE VIEW dbo.StudentResults AS
+SELECT 
+    s.ScoreId,
+    s.StudentId,
+    u.FullName AS StudentName,
+    q.QuizTitle,
+    sub.SubjectName,
+    s.Score,
+    s.TotalMarks,
+    s.TakenAt
+FROM dbo.Scores s
+INNER JOIN dbo.Users u ON s.StudentId = u.UserId
+INNER JOIN dbo.Quizzes q ON s.QuizId = q.QuizId
+INNER JOIN dbo.Subjects sub ON q.SubjectId = sub.SubjectId;
+GO
+
+
+
+
+
+USE BridgePrepNewDB;
+GO
+
+UPDATE LearningMaterials
+SET ContentUrl = REPLACE(ContentUrl, '~/', '')
+WHERE ContentUrl LIKE '~/%';
+GO
+
+
+
+
+

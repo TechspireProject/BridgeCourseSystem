@@ -1,19 +1,20 @@
 ﻿using System;
 using System.IO;
+using System.Web.UI;
 
 namespace BridgePrep
 {
-    public partial class TeacherMaster : System.Web.UI.MasterPage
+    public partial class TeacherMaster : MasterPage
     {
         protected void Page_Load(object sender, EventArgs e)
         {
+
         }
 
-        // Highlights active link dynamically
         protected string GetActiveClass(string pageName)
         {
             string currentPage = Path.GetFileName(Request.Url.AbsolutePath);
-            return currentPage.Equals(pageName, StringComparison.OrdinalIgnoreCase) ? "active" : "";
+            return string.Equals(currentPage, pageName, StringComparison.OrdinalIgnoreCase) ? "active" : "";
         }
 
         protected void btnSidebarLogout_Click(object sender, EventArgs e)

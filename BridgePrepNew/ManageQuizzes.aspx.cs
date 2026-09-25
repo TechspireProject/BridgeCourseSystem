@@ -36,8 +36,11 @@ namespace BridgePrep
                 ddlSubjects.DataValueField = "SubjectId";
                 ddlSubjects.DataBind();
 
-                // Add default select option
-                ddlSubjects.Items.Insert(0, new ListItem("-- Select Subject --", "0"));
+                // Add default select option only if it's not already there
+                if (ddlSubjects.Items.FindByValue("0") == null)
+                {
+                    ddlSubjects.Items.Insert(0, new ListItem("-- Select Subject --", "0"));
+                }
             }
             catch (Exception ex)
             {
@@ -93,7 +96,6 @@ namespace BridgePrep
             int totalMarks = Convert.ToInt32(marksStr);
             int teacherId = Convert.ToInt32(Session["UserId"]);
 
-            // Updated query matching database schema: TeacherId
             string query = @"INSERT INTO Quizzes (SubjectId, TeacherId, QuizTitle, TotalMarks) 
                              VALUES (@SubjectId, @TeacherId, @Title, @Marks)";
 

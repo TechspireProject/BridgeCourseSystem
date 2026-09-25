@@ -1,5 +1,4 @@
 ﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="TakeQuiz.aspx.cs" Inherits="BridgePrep.TakeQuiz" %>
-
 <!DOCTYPE html>
 <html lang="en">
 <head runat="server">
@@ -96,7 +95,7 @@
             <asp:Label ID="lblNoQuestions" runat="server" CssClass="alert alert-warning text-center d-block fw-semibold mb-4" Visible="false"></asp:Label>
 
             <!-- Quiz Questions Repeater -->
-            <asp:Repeater ID="rptQuestions" runat="server">
+            <asp:Repeater ID="rptQuestions" runat="server" OnItemDataBound="rptQuestions_ItemDataBound">
                 <ItemTemplate>
                     <div class="card question-card p-4">
                         <asp:HiddenField ID="hfQuestionId" runat="server" Value='<%# Eval("QuestionId") %>' />
@@ -107,25 +106,17 @@
                         </h5>
 
                         <div class="options-group">
-                            <label class="option-item w-100">
-                                <input type="radio" name='q_<%# Eval("QuestionId") %>' value="A" />
-                                <span><strong>A)</strong> <%# Eval("OptionA") %></span>
-                            </label>
-                            
-                            <label class="option-item w-100">
-                                <input type="radio" name='q_<%# Eval("QuestionId") %>' value="B" />
-                                <span><strong>B)</strong> <%# Eval("OptionB") %></span>
-                            </label>
-
-                            <label class="option-item w-100">
-                                <input type="radio" name='q_<%# Eval("QuestionId") %>' value="C" />
-                                <span><strong>C)</strong> <%# Eval("OptionC") %></span>
-                            </label>
-
-                            <label class="option-item w-100">
-                                <input type="radio" name='q_<%# Eval("QuestionId") %>' value="D" />
-                                <span><strong>D)</strong> <%# Eval("OptionD") %></span>
-                            </label>
+                            <!-- Nested Repeater rendering randomized options -->
+                            <asp:Repeater ID="rptOptions" runat="server">
+                                <ItemTemplate>
+                                    <label class="option-item w-100">
+                                        <input type="radio" 
+                                               name='q_<%# DataBinder.Eval(Container.NamingContainer.NamingContainer, "DataItem.QuestionId") %>' 
+                                               value='<%# Eval("Key") %>' />
+                                        <span><%# Eval("Value") %></span>
+                                    </label>
+                                </ItemTemplate>
+                            </asp:Repeater>
                         </div>
                     </div>
                 </ItemTemplate>
@@ -138,7 +129,7 @@
                     OnClick="btnSubmitQuiz_Click" Visible="false" />
             </div>
 
-            <!-- Quiz Results Panel (Hidden by default) -->
+            <!-- Quiz Results Panel -->
             <asp:Panel ID="pnlResult" runat="server" Visible="false" CssClass="card result-card p-5 text-center my-4">
                 <div class="mb-3">
                     <i class="fa-solid fa-circle-check text-success fa-4x mb-3"></i>

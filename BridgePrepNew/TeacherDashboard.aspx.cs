@@ -59,7 +59,7 @@ namespace BridgePrep
                 DataTable dtSubj = DbHelper.ExecuteQuery("SELECT COUNT(*) FROM Subjects");
                 lblTotalSubjects.Text = (dtSubj != null && dtSubj.Rows.Count > 0) ? dtSubj.Rows[0][0].ToString() : "0";
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 lblTotalMaterials.Text = "0";
                 lblTotalQuizzes.Text = "0";

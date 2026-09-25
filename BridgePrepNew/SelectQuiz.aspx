@@ -1,5 +1,4 @@
 ﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="SelectQuiz.aspx.cs" Inherits="BridgePrep.SelectQuiz" %>
-
 <!DOCTYPE html>
 <html lang="en">
 <head runat="server">
@@ -22,6 +21,7 @@
     <form id="form1" runat="server">
         <div class="container-fluid">
             <div class="row">
+                <!-- Sidebar Navigation -->
                 <div class="col-md-3 col-lg-2 sidebar p-3 d-flex flex-column">
                     <div class="sidebar-brand fw-bold text-center py-3 border-bottom border-secondary mb-4">
                         <i class="fa-solid fa-graduation-cap me-2 text-success"></i>BridgePrep
@@ -33,6 +33,7 @@
                     <a href="ManageProfile.aspx"><i class="fa-solid fa-user-gear me-3"></i>My Profile</a>
                 </div>
 
+                <!-- Main Content Area -->
                 <div class="col-md-9 col-lg-10 p-4">
                     <h3 class="fw-bold mb-1">Subject Quizzes</h3>
                     <p class="text-muted small mb-4">Complete your English, Mathematics, and Science quizzes.</p>
@@ -42,14 +43,36 @@
                             <Columns>
                                 <asp:BoundField DataField="QuizTitle" HeaderText="Quiz Title" />
                                 <asp:BoundField DataField="SubjectName" HeaderText="Subject" />
-                                <asp:BoundField DataField="TotalMarks" HeaderText="Total Marks" ItemStyle-Width="120px" />
+                                <asp:BoundField DataField="TotalMarks" HeaderText="Total Marks" ItemStyle-Width="100px" />
+                                
+                                <asp:TemplateField HeaderText="Attempts" ItemStyle-Width="100px">
+                                    <ItemTemplate>
+                                        <span class="badge bg-secondary rounded-pill px-3"><%# Eval("TotalAttempts") %></span>
+                                    </ItemTemplate>
+                                </asp:TemplateField>
+
+                                <asp:TemplateField HeaderText="Best Score" ItemStyle-Width="110px">
+                                    <ItemTemplate>
+                                        <span class="badge bg-success rounded-pill px-3"><%# Eval("BestScore") %> / <%# Eval("TotalMarks") %></span>
+                                    </ItemTemplate>
+                                </asp:TemplateField>
+
+                                <asp:TemplateField HeaderText="Latest Score" ItemStyle-Width="110px">
+                                    <ItemTemplate>
+                                        <span class="badge bg-info text-dark rounded-pill px-3"><%# Eval("LatestScore") %> / <%# Eval("TotalMarks") %></span>
+                                    </ItemTemplate>
+                                </asp:TemplateField>
+
                                 <asp:TemplateField HeaderText="Action" ItemStyle-Width="160px">
                                     <ItemTemplate>
-                                        <a href='TakeQuiz.aspx?QuizId=<%# Eval("QuizId") %>' class="btn btn-success btn-sm rounded-pill px-3">Start Quiz</a>
+                                        <a href='TakeQuiz.aspx?QuizId=<%# Eval("QuizId") %>' class="btn btn-success btn-sm rounded-pill px-3">
+                                            <%# Convert.ToInt32(Eval("TotalAttempts")) > 0 ? "Retake Quiz" : "Start Quiz" %>
+                                        </a>
                                     </ItemTemplate>
                                 </asp:TemplateField>
                             </Columns>
                         </asp:GridView>
+
                         <asp:Label ID="lblNoQuizzes" runat="server" Text="No quizzes available at the moment." Visible="false" CssClass="text-muted py-3 d-block"></asp:Label>
                     </div>
                 </div>

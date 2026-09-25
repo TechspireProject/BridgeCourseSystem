@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Web.UI.WebControls;
 
 namespace BridgePrep
@@ -30,7 +32,6 @@ namespace BridgePrep
                 return;
             }
 
-            // Database setup check
             EnsureScoresTableExists();
 
             if (!IsPostBack)
@@ -89,7 +90,12 @@ namespace BridgePrep
         {
             try
             {
-                string query = "SELECT QuestionId, QuestionText, OptionA, OptionB, OptionC, OptionD, CorrectOption FROM Questions WHERE QuizId = @QuizId";
+                // ORDER BY NEWID() selects questions in RANDOM order on every attempt
+                string query = @"SELECT QuestionId, QuestionText, OptionA, OptionB, OptionC, OptionD, CorrectOption 
+                                FROM Questions 
+                                WHERE QuizId = @QuizId 
+                                ORDER BY NEWID()";
+
                 SqlParameter[] p = { new SqlParameter("@QuizId", QuizId) };
                 DataTable dt = DbHelper.ExecuteQuery(query, p);
 
@@ -115,11 +121,37 @@ namespace BridgePrep
             }
         }
 
+        protected void rptQuestions_ItemDataBound(object sender, RepeaterItemEventArgs e)
+        {
+            if (e.Item.ItemType == ListItemType.Item || e.Item.ItemType == ListItemType.AlternatingItem)
+            {
+                DataRowView row = (DataRowView)e.Item.DataItem;
+
+                // Create options list mapped directly to option keys ('A', 'B', 'C', 'D')
+                var optionsList = new List<KeyValuePair<string, string>>
+                {
+                    new KeyValuePair<string, string>("A", row["OptionA"].ToString()),
+                    new KeyValuePair<string, string>("B", row["OptionB"].ToString()),
+                    new KeyValuePair<string, string>("C", row["OptionC"].ToString()),
+                    new KeyValuePair<string, string>("D", row["OptionD"].ToString())
+                };
+
+                // Shuffle options randomly
+                var randomizedOptions = optionsList.OrderBy(x => Guid.NewGuid()).ToList();
+
+                Repeater rptOptions = (Repeater)e.Item.FindControl("rptOptions");
+                if (rptOptions != null)
+                {
+                    rptOptions.DataSource = randomizedOptions;
+                    rptOptions.DataBind();
+                }
+            }
+        }
+
         protected void btnSubmitQuiz_Click(object sender, EventArgs e)
         {
             try
             {
-                // Retrieve original question details from Database for grading
                 string query = "SELECT QuestionId, CorrectOption FROM Questions WHERE QuizId = @QuizId";
                 SqlParameter[] qParams = { new SqlParameter("@QuizId", QuizId) };
                 DataTable dtQuestions = DbHelper.ExecuteQuery(query, qParams);
@@ -138,10 +170,8 @@ namespace BridgePrep
                 {
                     string questionId = row["QuestionId"].ToString();
                     string actualCorrectOption = row["CorrectOption"].ToString().Trim();
-
                     string selectedOption = null;
 
-                    // Match HTTP posted radio inputs safely across standard and mangled forms
                     foreach (string key in Request.Form.AllKeys)
                     {
                         if (key != null && (key == "q_" + questionId || key.EndsWith("q_" + questionId)))
@@ -159,9 +189,9 @@ namespace BridgePrep
 
                 int studentId = Convert.ToInt32(Session["UserId"]);
 
-                // Record Score in DB
-                string insertQuery = @"INSERT INTO Scores (StudentId, QuizId, Score, TotalMarks) 
-                                      VALUES (@StudentId, @QuizId, @Score, @TotalMarks)";
+                // Record every attempt in database
+                string insertQuery = @"INSERT INTO Scores (StudentId, QuizId, Score, TotalMarks, TakenAt) 
+                                      VALUES (@StudentId, @QuizId, @Score, @TotalMarks, GETDATE())";
 
                 SqlParameter[] p = {
                     new SqlParameter("@StudentId", studentId),
@@ -172,7 +202,7 @@ namespace BridgePrep
 
                 DbHelper.ExecuteNonQuery(insertQuery, p);
 
-                // Render Summary Panel
+                // Render result view
                 lblScore.Text = correctAnswersCount.ToString();
                 lblTotalMarks.Text = totalQuestionsCount.ToString();
                 pnlResult.Visible = true;

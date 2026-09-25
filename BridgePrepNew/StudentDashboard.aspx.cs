@@ -41,7 +41,7 @@ namespace BridgePrep
                 // 2. Load Dynamic Subject Cards
                 LoadSubjects();
 
-                // 3. Load Learning Progress Bar (Using the correct Scores table and StudentId column)
+                // 3. Load Learning Progress Bar
                 LoadLearningProgress(userId, selectedSubject);
 
                 // 4. Load Available Quizzes
@@ -72,7 +72,7 @@ namespace BridgePrep
         {
             try
             {
-                // Total Quizzes Count (optionally filtered by subject)
+                // Total Quizzes Count (filtered by subject if selected)
                 string totalQuizQuery = string.IsNullOrEmpty(selectedSubject)
                     ? "SELECT COUNT(*) FROM Quizzes"
                     : @"SELECT COUNT(*) FROM Quizzes q JOIN Subjects s ON q.SubjectId = s.SubjectId WHERE s.SubjectName = @SubjectName";
@@ -84,7 +84,7 @@ namespace BridgePrep
                 DataTable dtTotal = DbHelper.ExecuteQuery(totalQuizQuery, totalParams);
                 int totalQuizzes = (dtTotal != null && dtTotal.Rows.Count > 0 && dtTotal.Rows[0][0] != DBNull.Value) ? Convert.ToInt32(dtTotal.Rows[0][0]) : 0;
 
-                // Completed Distinct Quizzes by User using the Scores table and StudentId column
+                // Completed Distinct Quizzes by User using Scores table
                 string completedQuery = string.IsNullOrEmpty(selectedSubject)
                     ? "SELECT COUNT(DISTINCT QuizId) FROM Scores WHERE StudentId = @UserId"
                     : @"SELECT COUNT(DISTINCT sc.QuizId) FROM Scores sc JOIN Quizzes q ON sc.QuizId = q.QuizId JOIN Subjects s ON q.SubjectId = s.SubjectId WHERE sc.StudentId = @UserId AND s.SubjectName = @SubjectName";
