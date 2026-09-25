@@ -48,11 +48,11 @@ namespace BridgePrep
                     IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Scores')
                     BEGIN
                         CREATE TABLE [dbo].[Scores] (
-                            [ScoreId]    INT      IDENTITY (1, 1) NOT NULL PRIMARY KEY,
-                            [StudentId]  INT      NOT NULL,
-                            [QuizId]     INT      NOT NULL,
-                            [Score]      INT      NOT NULL,
-                            [TotalMarks] INT      NOT NULL,
+                            [ScoreId]    INT     IDENTITY (1, 1) NOT NULL PRIMARY KEY,
+                            [StudentId]  INT     NOT NULL,
+                            [QuizId]     INT     NOT NULL,
+                            [Score]      INT     NOT NULL,
+                            [TotalMarks] INT     NOT NULL,
                             [TakenAt]    DATETIME DEFAULT (GETDATE()) NULL
                         );
                     END";
@@ -217,7 +217,6 @@ namespace BridgePrep
                                         IsSelected = isSelected
                                     };
 
-                                    // Apply solid background coloring rules
                                     if (opt.Val.Equals(correctOpt, StringComparison.OrdinalIgnoreCase))
                                     {
                                         vm.CssClass = "correct-box";
@@ -247,7 +246,7 @@ namespace BridgePrep
                 int studentId = Convert.ToInt32(Session["UserId"]);
 
                 string insertQuery = @"INSERT INTO Scores (StudentId, QuizId, Score, TotalMarks, TakenAt) 
-                                      VALUES (@StudentId, @QuizId, @Score, @TotalMarks, GETDATE())";
+                                     VALUES (@StudentId, @QuizId, @Score, @TotalMarks, GETDATE())";
 
                 SqlParameter[] p = {
                     new SqlParameter("@StudentId", studentId),
