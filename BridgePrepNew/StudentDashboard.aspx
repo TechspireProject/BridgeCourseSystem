@@ -178,11 +178,14 @@
                         </div>
                         
                         <div class="row g-4">
-                            <asp:Repeater ID="rptSubjects" runat="server">
+                            <!-- Added OnItemDataBound event handler -->
+                            <asp:Repeater ID="rptSubjects" runat="server" OnItemDataBound="rptSubjects_ItemDataBound">
                                 <ItemTemplate>
                                     <div class="col-md-4">
                                         <div class='<%# "card subject-card shadow-sm card-gradient-" + (Container.ItemIndex % 3) %>'>
-                                            <img src="https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=500&q=80" class="card-img-top" alt='<%# Eval("SubjectName") %>'>
+                                            <!-- Dynamic Server-side Image Control -->
+                                            <asp:Image ID="imgSubject" runat="server" CssClass="card-img-top" AlternateText='<%# Eval("SubjectName") %>' />
+                                            
                                             <div class="card-body">
                                                 <div>
                                                     <div class="mb-2"><i class="fa-solid fa-book-open fa-lg"></i></div>

@@ -41,25 +41,53 @@
         .question-card:hover {
             transform: translateY(-2px);
         }
-        .option-item {
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            padding: 12px 18px;
+        
+        /* RadioButtonList block styling */
+        .quiz-options-list table {
+            width: 100%;
+        }
+        .quiz-options-list td {
+            display: block;
             margin-bottom: 10px;
-            cursor: pointer;
-            transition: all 0.2s ease-in-out;
+        }
+        .quiz-options-list label {
             display: flex;
             align-items: center;
+            justify-content: space-between;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 14px 20px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            width: 100%;
+            background-color: #ffffff;
+            font-weight: 500;
+            color: #1e293b;
         }
-        .option-item:hover {
+        .quiz-options-list label:hover {
             border-color: #2d6a4f;
-            background-color: #f8f9fa;
+            background-color: #f8fafc;
         }
-        .option-item input[type="radio"] {
+        .quiz-options-list input[type="radio"] {
             transform: scale(1.2);
             margin-right: 12px;
             accent-color: #2d6a4f;
         }
+
+        /* Full Background Block Coloring */
+        .quiz-options-list label.correct-box {
+            background-color: #d1e7dd !important;
+            border-color: #198754 !important;
+            color: #0f5132 !important;
+            font-weight: 600;
+        }
+        .quiz-options-list label.wrong-box {
+            background-color: #f8d7da !important;
+            border-color: #dc3545 !important;
+            color: #842029 !important;
+            font-weight: 600;
+        }
+
         .result-card {
             border: none;
             border-radius: 16px;
@@ -100,23 +128,15 @@
                     <div class="card question-card p-4">
                         <asp:HiddenField ID="hfQuestionId" runat="server" Value='<%# Eval("QuestionId") %>' />
                         <asp:HiddenField ID="hfCorrectOption" runat="server" Value='<%# Eval("CorrectOption") %>' />
+                        <asp:HiddenField ID="hfSelectedOption" runat="server" />
 
                         <h5 class="fw-bold text-dark mb-3">
                             <span class="text-success me-2">Q<%# Container.ItemIndex + 1 %>.</span><%# Eval("QuestionText") %>
                         </h5>
 
                         <div class="options-group">
-                            <!-- Nested Repeater rendering randomized options -->
-                            <asp:Repeater ID="rptOptions" runat="server">
-                                <ItemTemplate>
-                                    <label class="option-item w-100">
-                                        <input type="radio" 
-                                               name='q_<%# DataBinder.Eval(Container.NamingContainer.NamingContainer, "DataItem.QuestionId") %>' 
-                                               value='<%# Eval("Key") %>' />
-                                        <span><%# Eval("Value") %></span>
-                                    </label>
-                                </ItemTemplate>
-                            </asp:Repeater>
+                            <asp:RadioButtonList ID="rblOptions" runat="server" CssClass="quiz-options-list">
+                            </asp:RadioButtonList>
                         </div>
                     </div>
                 </ItemTemplate>
@@ -159,5 +179,50 @@
 
         </div>
     </form>
+    
+    <!-- Script to dynamically color correct options green and selected wrong options red post-submission -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let resultPanel = document.getElementById('<%= pnlResult.ClientID %>');
+            if (resultPanel) {
+                document.querySelectorAll('.question-card').forEach(function (card) {
+                    let correctField = card.querySelector('[id*="hfCorrectOption"]');
+                    let selectedField = card.querySelector('[id*="hfSelectedOption"]');
+                    let radioList = card.querySelector('.quiz-options-list');
+
+                    if (correctField && radioList) {
+                        let correctVal = correctField.value ? correctField.value.trim().toUpperCase() : "";
+                        let selectedVal = selectedField && selectedField.value ? selectedField.value.trim().toUpperCase() : "";
+
+                        radioList.querySelectorAll('input[type="radio"]').forEach(function (radio) {
+                            let label = radio.nextElementSibling || card.querySelector('label[for="' + radio.id + '"]');
+                            let radioVal = radio.value ? radio.value.trim().toUpperCase() : "";
+                            let labelText = label ? label.textContent.trim().toUpperCase() : "";
+
+                            if (label && correctVal !== "") {
+                                let isCorrect = (radioVal === correctVal) || (labelText === correctVal);
+                                let isSelected = radio.checked || (selectedVal !== "" && (radioVal === selectedVal || labelText === selectedVal));
+
+                                // 1. Always highlight the correct answer block in green
+                                if (isCorrect) {
+                                    label.classList.add('correct-box');
+                                    if (!label.querySelector('.fa-check')) {
+                                        label.innerHTML += ' <i class="fa-solid fa-check text-success ms-auto fs-5"></i>';
+                                    }
+                                } 
+                                // 2. ONLY make it red if it was selected AND it is NOT the correct answer
+                                else if (isSelected && !isCorrect) {
+                                    label.classList.add('wrong-box');
+                                    if (!label.querySelector('.fa-xmark')) {
+                                        label.innerHTML += ' <i class="fa-solid fa-xmark text-danger ms-auto fs-5"></i>';
+                                    }
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>

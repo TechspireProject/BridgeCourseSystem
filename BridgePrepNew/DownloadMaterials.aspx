@@ -1,5 +1,4 @@
 ﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="DownloadMaterials.aspx.cs" Inherits="BridgePrep.DownloadMaterials" %>
-
 <!DOCTYPE html>
 <html lang="en">
 <head runat="server">
@@ -111,6 +110,19 @@
                         <p class="text-muted small mb-0">Access notes, documents, and reference links for your subjects.</p>
                     </div>
 
+                    <!-- Subject Filter Control Card -->
+                    <div class="card dash-card p-3 mb-4">
+                        <div class="row align-items-center">
+                            <div class="col-md-4">
+                                <label for="ddlSubjectFilter" class="form-label fw-bold small text-muted mb-1">Filter by Subject:</label>
+                                <asp:DropDownList ID="ddlSubjectFilter" runat="server" CssClass="form-select" AutoPostBack="true" OnSelectedIndexChanged="ddlSubjectFilter_SelectedIndexChanged">
+                                    <asp:ListItem Text="All Subjects" Value="" />
+                                </asp:DropDownList>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Materials Table Card -->
                     <div class="card dash-card p-4">
                         <asp:Label ID="lblNoMaterials" runat="server" Text="No study materials published yet." Visible="false" CssClass="alert alert-light text-muted d-block mb-0"></asp:Label>
 

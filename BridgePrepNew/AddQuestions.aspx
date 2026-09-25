@@ -1,17 +1,11 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="AddQuestions.aspx.cs" Inherits="BridgePrep.AddQuestions" %>
-
-<!DOCTYPE html>
-<html lang="en">
-<head runat="server">
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="AddQuestions.aspx.cs" Inherits="BridgePrep.AddQuestions" %><!DOCTYPE html><html lang="en"><head runat="server">
     <meta charset="UTF-8">
     <title>BridgePrep - Add Questions</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body { background-color: #f4f6f9; font-family: 'Times New Roman', Times, serif; }
         .card { border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-    </style>
-</head>
-<body>
+    </style></head><body>
     <form id="form1" runat="server">
         <!-- Navigation Bar -->
         <nav class="navbar navbar-expand-lg navbar-dark bg-success px-4">
@@ -30,6 +24,16 @@
                         <h4 class="text-success mb-3">
                             Add Question to: <asp:Label ID="lblQuizTitle" runat="server" CssClass="text-dark"></asp:Label>
                         </h4>
+
+                        <!-- Edit Total Marks Section -->
+                        <div class="mb-3 p-3 bg-light rounded border">
+                            <label class="form-label fw-bold text-secondary small">Total Marks for this Quiz</label>
+                            <div class="d-flex gap-2">
+                                <asp:TextBox ID="txtTotalMarks" runat="server" TextMode="Number" CssClass="form-control form-control-sm" placeholder="Enter total marks"></asp:TextBox>
+                                <asp:Button ID="btnUpdateMarks" runat="server" Text="Update Marks" CssClass="btn btn-outline-success btn-sm text-nowrap" OnClick="btnUpdateMarks_Click" CausesValidation="false" />
+                            </div>
+                            <asp:Label ID="lblMarksMsg" runat="server" CssClass="small mt-1 d-block"></asp:Label>
+                        </div>
 
                         <div class="mb-3">
                             <label class="form-label">Question Text</label>
@@ -91,6 +95,4 @@
                 </div>
             </div>
         </div>
-    </form>
-</body>
-</html>
+    </form></body></html>

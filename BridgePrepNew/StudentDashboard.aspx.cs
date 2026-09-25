@@ -2,6 +2,7 @@
 using System.Data;
 using System.Data.SqlClient;
 using System.Web.UI;
+using System.Web.UI.WebControls;
 
 namespace BridgePrep
 {
@@ -65,6 +66,34 @@ namespace BridgePrep
             {
                 rptSubjects.DataSource = dtSubjects;
                 rptSubjects.DataBind();
+            }
+        }
+
+        // --- Added ItemDataBound Event Handler for Subject Cards ---
+        protected void rptSubjects_ItemDataBound(object sender, RepeaterItemEventArgs e)
+        {
+            if (e.Item.ItemType == ListItemType.Item || e.Item.ItemType == ListItemType.AlternatingItem)
+            {
+                var dataItem = (System.Data.DataRowView)e.Item.DataItem;
+                string subjectName = dataItem["SubjectName"].ToString();
+
+                System.Web.UI.WebControls.Image imgSubject = (System.Web.UI.WebControls.Image)e.Item.FindControl("imgSubject");
+
+                if (imgSubject != null)
+                {
+                    if (subjectName.Equals("English", StringComparison.OrdinalIgnoreCase))
+                    {
+                        imgSubject.ImageUrl = "https://images.unsplash.com/photo-1471341971476-ae15ff5dd4ea?w=500&q=80";
+                    }
+                    else if (subjectName.Equals("Math", StringComparison.OrdinalIgnoreCase))
+                    {
+                        imgSubject.ImageUrl = "https://images.unsplash.com/photo-1509228468518-180dd4864904?w=500&q=80";
+                    }
+                    else
+                    {
+                        imgSubject.ImageUrl = "https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=500&q=80";
+                    }
+                }
             }
         }
 

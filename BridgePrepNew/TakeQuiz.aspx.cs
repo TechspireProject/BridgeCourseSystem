@@ -19,7 +19,6 @@ namespace BridgePrep
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            // Session check for Student Role (RoleId = 3)
             if (Session["UserId"] == null || Session["RoleId"] == null || Convert.ToInt32(Session["RoleId"]) != 3)
             {
                 Response.Redirect("Login.aspx");
@@ -90,7 +89,6 @@ namespace BridgePrep
         {
             try
             {
-                // ORDER BY NEWID() selects questions in RANDOM order on every attempt
                 string query = @"SELECT QuestionId, QuestionText, OptionA, OptionB, OptionC, OptionD, CorrectOption 
                                 FROM Questions 
                                 WHERE QuizId = @QuizId 
@@ -126,17 +124,16 @@ namespace BridgePrep
             if (e.Item.ItemType == ListItemType.Item || e.Item.ItemType == ListItemType.AlternatingItem)
             {
                 DataRowView row = (DataRowView)e.Item.DataItem;
+                string questionId = row["QuestionId"].ToString();
 
-                // Create options list mapped directly to option keys ('A', 'B', 'C', 'D')
-                var optionsList = new List<KeyValuePair<string, string>>
+                var optionsList = new List<QuizOptionViewModel>
                 {
-                    new KeyValuePair<string, string>("A", row["OptionA"].ToString()),
-                    new KeyValuePair<string, string>("B", row["OptionB"].ToString()),
-                    new KeyValuePair<string, string>("C", row["OptionC"].ToString()),
-                    new KeyValuePair<string, string>("D", row["OptionD"].ToString())
+                    new QuizOptionViewModel { QuestionId = questionId, Text = row["OptionA"].ToString(), Value = "A", IsDisabled = false, IsSelected = false },
+                    new QuizOptionViewModel { QuestionId = questionId, Text = row["OptionB"].ToString(), Value = "B", IsDisabled = false, IsSelected = false },
+                    new QuizOptionViewModel { QuestionId = questionId, Text = row["OptionC"].ToString(), Value = "C", IsDisabled = false, IsSelected = false },
+                    new QuizOptionViewModel { QuestionId = questionId, Text = row["OptionD"].ToString(), Value = "D", IsDisabled = false, IsSelected = false }
                 };
 
-                // Shuffle options randomly
                 var randomizedOptions = optionsList.OrderBy(x => Guid.NewGuid()).ToList();
 
                 Repeater rptOptions = (Repeater)e.Item.FindControl("rptOptions");
@@ -148,11 +145,22 @@ namespace BridgePrep
             }
         }
 
+        public class QuizOptionViewModel
+        {
+            public string QuestionId { get; set; }
+            public string Text { get; set; }
+            public string Value { get; set; }
+            public bool IsSelected { get; set; }
+            public bool IsDisabled { get; set; }
+            public string CssClass { get; set; } = "";
+            public string IconHtml { get; set; } = "";
+        }
+
         protected void btnSubmitQuiz_Click(object sender, EventArgs e)
         {
             try
             {
-                string query = "SELECT QuestionId, CorrectOption FROM Questions WHERE QuizId = @QuizId";
+                string query = "SELECT QuestionId, OptionA, OptionB, OptionC, OptionD, CorrectOption FROM Questions WHERE QuizId = @QuizId";
                 SqlParameter[] qParams = { new SqlParameter("@QuizId", QuizId) };
                 DataTable dtQuestions = DbHelper.ExecuteQuery(query, qParams);
 
@@ -163,33 +171,81 @@ namespace BridgePrep
                     return;
                 }
 
+                var questionDict = dtQuestions.AsEnumerable().ToDictionary(
+                    row => row["QuestionId"].ToString(),
+                    row => row
+                );
+
                 int correctAnswersCount = 0;
-                int totalQuestionsCount = dtQuestions.Rows.Count;
+                int totalQuestionsCount = rptQuestions.Items.Count;
 
-                foreach (DataRow row in dtQuestions.Rows)
+                foreach (RepeaterItem item in rptQuestions.Items)
                 {
-                    string questionId = row["QuestionId"].ToString();
-                    string actualCorrectOption = row["CorrectOption"].ToString().Trim();
-                    string selectedOption = null;
-
-                    foreach (string key in Request.Form.AllKeys)
+                    if (item.ItemType == ListItemType.Item || item.ItemType == ListItemType.AlternatingItem)
                     {
-                        if (key != null && (key == "q_" + questionId || key.EndsWith("q_" + questionId)))
+                        HiddenField hfQuestionId = (HiddenField)item.FindControl("hfQuestionId");
+                        Repeater rptOptions = (Repeater)item.FindControl("rptOptions");
+
+                        if (hfQuestionId != null && rptOptions != null)
                         {
-                            selectedOption = Request.Form[key];
-                            break;
-                        }
-                    }
+                            string questionId = hfQuestionId.Value;
+                            if (questionDict.ContainsKey(questionId))
+                            {
+                                DataRow qRow = questionDict[questionId];
+                                string correctOpt = qRow["CorrectOption"].ToString().Trim();
+                                string selectedOpt = Request.Form["q_" + questionId];
 
-                    if (!string.IsNullOrEmpty(selectedOption) && selectedOption.Equals(actualCorrectOption, StringComparison.OrdinalIgnoreCase))
-                    {
-                        correctAnswersCount++;
+                                var rawOptions = new[]
+                                {
+                                    new { Text = qRow["OptionA"].ToString(), Val = "A" },
+                                    new { Text = qRow["OptionB"].ToString(), Val = "B" },
+                                    new { Text = qRow["OptionC"].ToString(), Val = "C" },
+                                    new { Text = qRow["OptionD"].ToString(), Val = "D" }
+                                };
+
+                                var evaluatedOptions = new List<QuizOptionViewModel>();
+
+                                foreach (var opt in rawOptions)
+                                {
+                                    bool isSelected = (selectedOpt != null && selectedOpt.Equals(opt.Val, StringComparison.OrdinalIgnoreCase));
+                                    var vm = new QuizOptionViewModel
+                                    {
+                                        QuestionId = questionId,
+                                        Text = opt.Text,
+                                        Value = opt.Val,
+                                        IsDisabled = true,
+                                        IsSelected = isSelected
+                                    };
+
+                                    // Apply solid background coloring rules
+                                    if (opt.Val.Equals(correctOpt, StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        vm.CssClass = "correct-box";
+                                        vm.IconHtml = "<i class='fa-solid fa-check text-success fs-5 ms-2'></i>";
+                                    }
+                                    else if (isSelected && !opt.Val.Equals(correctOpt, StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        vm.CssClass = "wrong-box";
+                                        vm.IconHtml = "<i class='fa-solid fa-xmark text-danger fs-5 ms-2'></i>";
+                                    }
+
+                                    evaluatedOptions.Add(vm);
+                                }
+
+                                rptOptions.DataSource = evaluatedOptions;
+                                rptOptions.DataBind();
+
+                                if (!string.IsNullOrEmpty(selectedOpt) && selectedOpt.Equals(correctOpt, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    correctAnswersCount++;
+                                }
+                            }
+                        }
                     }
                 }
 
                 int studentId = Convert.ToInt32(Session["UserId"]);
 
-                // Record every attempt in database
                 string insertQuery = @"INSERT INTO Scores (StudentId, QuizId, Score, TotalMarks, TakenAt) 
                                       VALUES (@StudentId, @QuizId, @Score, @TotalMarks, GETDATE())";
 
@@ -202,11 +258,9 @@ namespace BridgePrep
 
                 DbHelper.ExecuteNonQuery(insertQuery, p);
 
-                // Render result view
                 lblScore.Text = correctAnswersCount.ToString();
                 lblTotalMarks.Text = totalQuestionsCount.ToString();
                 pnlResult.Visible = true;
-                rptQuestions.Visible = false;
                 btnSubmitQuiz.Visible = false;
             }
             catch (Exception ex)

@@ -33,6 +33,33 @@ namespace BridgePrep
         protected global::System.Web.UI.WebControls.Label lblQuizTitle;
 
         /// <summary>
+        /// txtTotalMarks control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtTotalMarks;
+
+        /// <summary>
+        /// btnUpdateMarks control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnUpdateMarks;
+
+        /// <summary>
+        /// lblMarksMsg control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblMarksMsg;
+
+        /// <summary>
         /// txtQuestionText control.
         /// </summary>
         /// <remarks>

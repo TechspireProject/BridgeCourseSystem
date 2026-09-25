@@ -2,6 +2,7 @@
 using System.Data;
 using System.Data.SqlClient;
 using System.Web.UI;
+using System.Web.UI.WebControls;
 
 namespace BridgePrep
 {
@@ -17,21 +18,61 @@ namespace BridgePrep
 
             if (!IsPostBack)
             {
-                LoadMaterials();
+                LoadSubjectsDropdown();
+
+                // Check if a subject query string was passed from the dashboard cards
+                string selectedSubject = Request.QueryString["subject"];
+                if (!string.IsNullOrEmpty(selectedSubject))
+                {
+                    if (ddlSubjectFilter.Items.FindByValue(selectedSubject) != null)
+                    {
+                        ddlSubjectFilter.SelectedValue = selectedSubject;
+                    }
+                }
+
+                LoadMaterials(ddlSubjectFilter.SelectedValue);
             }
         }
 
-        private void LoadMaterials()
+        private void LoadSubjectsDropdown()
         {
             try
             {
-                string selectedSubject = Request.QueryString["subject"];
+                string query = "SELECT SubjectName FROM Subjects ORDER BY SubjectName ASC";
+                DataTable dt = DbHelper.ExecuteQuery(query, new SqlParameter[0]);
+
+                if (dt != null && dt.Rows.Count > 0)
+                {
+                    ddlSubjectFilter.DataSource = dt;
+                    ddlSubjectFilter.DataTextField = "SubjectName";
+                    ddlSubjectFilter.DataValueField = "SubjectName";
+                    ddlSubjectFilter.DataBind();
+                }
+
+                // Insert default option at top
+                ddlSubjectFilter.Items.Insert(0, new ListItem("All Subjects", ""));
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Dropdown Error: " + ex.Message);
+            }
+        }
+
+        protected void ddlSubjectFilter_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            LoadMaterials(ddlSubjectFilter.SelectedValue);
+        }
+
+        private void LoadMaterials(string selectedSubject)
+        {
+            try
+            {
                 string query;
                 SqlParameter[] parameters = null;
 
                 if (!string.IsNullOrEmpty(selectedSubject))
                 {
-                    // Filter materials specifically for the chosen subject card
+                    // Filter materials specifically for the chosen subject
                     query = @"
                         SELECT 
                             m.MaterialId,
@@ -50,7 +91,7 @@ namespace BridgePrep
                 }
                 else
                 {
-                    // Load all materials if no specific subject card was clicked
+                    // Load all materials if no subject is filtered
                     query = @"
                         SELECT 
                             m.MaterialId,

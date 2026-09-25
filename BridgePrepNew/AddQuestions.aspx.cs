@@ -41,19 +41,59 @@ namespace BridgePrep
         {
             try
             {
-                string query = "SELECT QuizTitle FROM Quizzes WHERE QuizId = @QuizId";
+                string query = "SELECT QuizTitle, TotalMarks FROM Quizzes WHERE QuizId = @QuizId";
                 SqlParameter[] p = { new SqlParameter("@QuizId", QuizId) };
                 DataTable dt = DbHelper.ExecuteQuery(query, p);
 
                 if (dt != null && dt.Rows.Count > 0)
                 {
                     lblQuizTitle.Text = dt.Rows[0]["QuizTitle"].ToString();
+                    txtTotalMarks.Text = dt.Rows[0]["TotalMarks"].ToString();
                 }
             }
             catch (Exception ex)
             {
                 lblMsg.Text = "Error loading quiz info: " + ex.Message;
                 lblMsg.CssClass = "text-danger mt-3 d-block text-center";
+            }
+        }
+
+        protected void btnUpdateMarks_Click(object sender, EventArgs e)
+        {
+            string marksStr = txtTotalMarks.Text.Trim();
+
+            if (string.IsNullOrEmpty(marksStr))
+            {
+                lblMarksMsg.Text = "Please enter total marks.";
+                lblMarksMsg.CssClass = "text-danger";
+                return;
+            }
+
+            try
+            {
+                int totalMarks = Convert.ToInt32(marksStr);
+                string query = "UPDATE Quizzes SET TotalMarks = @TotalMarks WHERE QuizId = @QuizId";
+                SqlParameter[] p = {
+                    new SqlParameter("@TotalMarks", totalMarks),
+                    new SqlParameter("@QuizId", QuizId)
+                };
+
+                int rows = DbHelper.ExecuteNonQuery(query, p);
+                if (rows > 0)
+                {
+                    lblMarksMsg.Text = "Marks updated successfully!";
+                    lblMarksMsg.CssClass = "text-success";
+                }
+                else
+                {
+                    lblMarksMsg.Text = "Failed to update marks.";
+                    lblMarksMsg.CssClass = "text-danger";
+                }
+            }
+            catch (Exception ex)
+            {
+                lblMarksMsg.Text = "Error: " + ex.Message;
+                lblMarksMsg.CssClass = "text-danger";
             }
         }
 
