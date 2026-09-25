@@ -28,7 +28,7 @@
                 
                 <div class="mb-3">
                     <label class="form-label fw-bold">Quiz Title</label>
-                    <asp:TextBox ID="txtQuizTitle" runat="server" CssClass="form-control" placeholder="e.g., Chapter 1 Quiz"></asp:TextBox>
+                    <asp:TextBox ID="txtQuizTitle" runat="server" CssClass="form-control" placeholder="e.g., Chapter 1 Quiz" required="true"></asp:TextBox>
                 </div>
 
                 <div class="mb-3">
@@ -38,7 +38,7 @@
 
                 <div class="mb-3">
                     <label class="form-label fw-bold">Total Marks</label>
-                    <asp:TextBox ID="txtTotalMarks" runat="server" TextMode="Number" CssClass="form-control" placeholder="10"></asp:TextBox>
+                    <asp:TextBox ID="txtTotalMarks" runat="server" TextMode="Number" CssClass="form-control" placeholder="10" required="true"></asp:TextBox>
                 </div>
 
                 <asp:Button ID="btnCreateQuiz" runat="server" Text="Create Quiz" CssClass="btn btn-success w-100 mt-2" OnClick="btnCreateQuiz_Click" />
@@ -51,7 +51,8 @@
             <div class="card p-4">
                 <h4 class="text-success mb-3 fw-bold">Available Quizzes</h4>
                 <asp:GridView ID="gvQuizzes" runat="server" AutoGenerateColumns="False" DataKeyNames="QuizId"
-                              OnRowDeleting="gvQuizzes_RowDeleting" CssClass="table table-hover table-bordered align-middle">
+                              OnRowDeleting="gvQuizzes_RowDeleting" CssClass="table table-hover table-bordered align-middle"
+                              EmptyDataText="No quizzes created yet.">
                     <Columns>
                         <asp:BoundField DataField="QuizTitle" HeaderText="Quiz Title" />
                         <asp:BoundField DataField="SubjectName" HeaderText="Subject" />

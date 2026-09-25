@@ -313,3 +313,14 @@ GO
 
 
 
+
+
+
+
+
+
+----check Hash Password-----
+USE BridgePrepNewDB;
+GO
+
+SELECT UserId, Email, FullName, PasswordHash FROM Users;
