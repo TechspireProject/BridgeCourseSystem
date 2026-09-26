@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Data.SqlClient;
+using System.Security.Cryptography;
 using System.Text;
 using System.Web.UI;
 using System.Web.UI.WebControls;
@@ -101,26 +102,29 @@ namespace BridgePrep
         #region User Actions & Inline Editing
         protected void btnAddUser_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txtFullName.Text) || string.IsNullOrWhiteSpace(txtEmail.Text))
+            if (string.IsNullOrWhiteSpace(txtFullName.Text) || string.IsNullOrWhiteSpace(txtEmail.Text) || string.IsNullOrWhiteSpace(txtPassword.Text))
             {
-                ShowMessage("Please complete all required user fields.", "danger");
+                ShowMessage("Please complete all required user fields, including password.", "danger");
                 return;
             }
 
+            // Hash the password securely before saving
+            string hashedPassword = HashPassword(txtPassword.Text.Trim());
+
             string query = @"INSERT INTO Users (FullName, Email, PasswordHash, RoleId, CreatedAt) 
-                             VALUES (@FullName, @Email, @Password, @RoleId, GETDATE())";
+                             VALUES (@FullName, @Email, @PasswordHash, @RoleId, GETDATE())";
 
             SqlParameter[] p = {
                 new SqlParameter("@FullName", txtFullName.Text.Trim()),
                 new SqlParameter("@Email", txtEmail.Text.Trim()),
-                new SqlParameter("@Password", txtPassword.Text.Trim()),
+                new SqlParameter("@PasswordHash", hashedPassword),
                 new SqlParameter("@RoleId", ddlRole.SelectedValue)
             };
 
             try
             {
                 DbHelper.ExecuteNonQuery(query, p);
-                ShowMessage("Account added successfully.", "success");
+                ShowMessage("Account added successfully with a secure password hash.", "success");
 
                 txtFullName.Text = txtEmail.Text = txtPassword.Text = string.Empty;
                 LoadUsers();
@@ -129,6 +133,20 @@ namespace BridgePrep
             catch (Exception ex)
             {
                 ShowMessage("Error adding user: " + ex.Message, "danger");
+            }
+        }
+
+        private string HashPassword(string password)
+        {
+            using (var sha256 = SHA256.Create())
+            {
+                byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+                var sb = new StringBuilder();
+                foreach (byte b in bytes)
+                {
+                    sb.Append(b.ToString("x2"));
+                }
+                return sb.ToString();
             }
         }
 
