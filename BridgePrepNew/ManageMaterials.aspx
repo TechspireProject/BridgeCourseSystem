@@ -9,17 +9,27 @@
     }
 </style>
 <script type="text/javascript">
+    // @ts-nocheck
     function toggleInputType() {
-        var contentType = document.getElementById('<%= ddlContentType.ClientID %>').value;
-        var fileContainer = document.getElementById('fileUploadContainer');
-        var urlContainer = document.getElementById('urlInputContainer');
+        var ddl = document.getElementById('<%= ddlContentType.ClientID %>');
+        var fileContainer = document.getElementById('<%= fileUploadContainer.ClientID %>');
+        var urlContainer = document.getElementById('<%= urlInputContainer.ClientID %>');
+        var txtUrl = document.getElementById('<%= txtContentUrl.ClientID %>');
 
-        if (contentType === 'Video' || contentType === 'Article') {
-            fileContainer.style.display = 'none';
-            urlContainer.style.display = 'block';
-        } else {
-            fileContainer.style.display = 'block';
-            urlContainer.style.display = 'none';
+        if (!ddl) return;
+
+        var contentType = ddl.value;
+
+        if (fileContainer && urlContainer) {
+            if (contentType === 'Video' || contentType === 'Article') {
+                fileContainer.style.display = 'none';
+                urlContainer.style.display = 'block';
+                if (txtUrl) txtUrl.setAttribute('required', 'true');
+            } else {
+                fileContainer.style.display = 'block';
+                urlContainer.style.display = 'none';
+                if (txtUrl) txtUrl.removeAttribute('required');
+            }
         }
     }
 
@@ -62,15 +72,15 @@
             </div>
 
             <!-- File Upload Field -->
-            <div class="mb-3" id="fileUploadContainer">
+            <div class="mb-3" id="fileUploadContainer" runat="server" clientidmode="Static">
                 <label class="form-label font-weight-bold">Select File</label>
                 <asp:FileUpload ID="fileUploadMaterial" runat="server" CssClass="form-control" />
             </div>
 
             <!-- URL Field for Video Links & Articles -->
-            <div class="mb-3" id="urlInputContainer" style="display: none;">
+            <div class="mb-3" id="urlInputContainer" runat="server" clientidmode="Static" style="display: none;">
                 <label class="form-label font-weight-bold">Paste Video / Web Link</label>
-                <asp:TextBox ID="txtContentUrl" runat="server" CssClass="form-control" placeholder="https://www.youtube.com/watch?v=..." required="true"></asp:TextBox>
+                <asp:TextBox ID="txtContentUrl" runat="server" CssClass="form-control" placeholder="https://www.youtube.com/watch?v=..."></asp:TextBox>
             </div>
 
             <asp:Button ID="btnUpload" runat="server" Text="Upload Material" CssClass="btn btn-success w-100 mt-2" OnClick="btnUpload_Click" />

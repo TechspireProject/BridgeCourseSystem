@@ -51,6 +51,15 @@ namespace BridgePrep
         protected global::System.Web.UI.WebControls.DropDownList ddlContentType;
 
         /// <summary>
+        /// fileUploadContainer control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl fileUploadContainer;
+
+        /// <summary>
         /// fileUploadMaterial control.
         /// </summary>
         /// <remarks>
@@ -58,6 +67,15 @@ namespace BridgePrep
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.FileUpload fileUploadMaterial;
+
+        /// <summary>
+        /// urlInputContainer control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl urlInputContainer;
 
         /// <summary>
         /// txtContentUrl control.

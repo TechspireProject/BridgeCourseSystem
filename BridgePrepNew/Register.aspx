@@ -1,5 +1,4 @@
 ﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Register.aspx.cs" Inherits="BridgePrep.Register" %>
-
 <!DOCTYPE html>
 <html lang="en">
 <head runat="server">
@@ -12,9 +11,9 @@
     </style>
     <script>
         function validateRegisterForm() {
-            let name = document.getElementById('<%= txtFullName.ClientID %>').value.trim();
-            let email = document.getElementById('<%= txtEmail.ClientID %>').value.trim();
-            let password = document.getElementById('<%= txtPassword.ClientID %>').value;
+            let name = (document.getElementById('<%= txtFullName.ClientID %>') as HTMLInputElement).value.trim();
+            let email = (document.getElementById('<%= txtEmail.ClientID %>') as HTMLInputElement).value.trim();
+            let password = (document.getElementById('<%= txtPassword.ClientID %>') as HTMLInputElement).value;
 
             if (name === "" || email === "" || password === "") {
                 alert("Please fill in all fields.");
